@@ -4,13 +4,13 @@ var express = require('express');
 var app = express();
 var morgan = require('morgan');
 var nunjucks = require('nunjucks');
-var makesRouter = require('./routes');
+var routes = require('./routes/wiki');
 var fs = require('fs');
 var path = require('path');
 var mime = require('mime');
 var bodyParser = require('body-parser');
-var socketio = require('socket.io');
-var models= require('./models');
+//var socketio = require('socket.io');
+var models= require('./models/');
 var db = require('./db');
 
 // templating boilerplate setup
@@ -26,18 +26,18 @@ app.use(bodyParser.urlencoded({ extended: true })); // for HTML form submits
 app.use(bodyParser.json()); // would be for AJAX requests
 
 
-// start the server
-var server = app.listen(1337, function(){
-  console.log('listening on port 1337');
-});
-var io = socketio.listen(server);
+// // start the server
+// var server = app.listen(1337, function(){
+//   console.log('listening on port 1337');
+// });
+// //var io = socketio.listen(server);
 
 models.User.sync({})
 .then(function () {
     return models.Page.sync({})
 })
 .then(function () {
-    server.listen(1337, function () {
+    app.listen(3001, function () {
         console.log('Server is listening on port 3001!');
     });
 })
@@ -48,4 +48,9 @@ models.User.sync({})
 app.use(express.static(path.join(__dirname, '/public')));
 
 // modular routing that uses io inside it
-app.use('/', makesRouter(io));
+app.use('/', routes);
+// app.use('/wiki', routes);
+
+// app.use('/', function(req, res, next){
+// 	res.redirect('/wiki');
+// });
